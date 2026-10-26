@@ -3,7 +3,7 @@ body {
   font-family: -apple-system, system-ui, sans-serif;
   background: #0f172a; color: #e2e8f0;
   padding: 16px; padding-top: env(safe-area-inset-top, 16px);
-  min-height: 100vh;
+  min-height: 100vh; padding-bottom: 40px;
 }
 header { text-align: center; margin-bottom: 24px; }
 h1 { font-size: 1.8rem; color: #38bdf8; }
@@ -16,7 +16,6 @@ main { max-width: 500px; margin: 0 auto; }
 }
 h2 { font-size: 1.1rem; margin-bottom: 12px; color: #f1f5f9; }
 .hint { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; }
-.hint code { background: #0f172a; padding: 2px 6px; border-radius: 4px; }
 label { display: block; margin-bottom: 12px; font-size: 0.9rem; color: #cbd5e1; }
 input, textarea {
   width: 100%; padding: 10px; margin-top: 6px;
@@ -34,5 +33,13 @@ button:active { opacity: 0.7; }
 .primary { background: #38bdf8; color: #0f172a; }
 .secondary { background: #334155; color: #e2e8f0; }
 .danger { background: transparent; color: #f87171; border: 1px solid #f87171; }
-.status { margin-top: 10px; font-size: 0.9rem; text-align: center; }
-#result { margin-top: 12px; word-break: break-all; }
+
+/* Estilos para el historial */
+.history-item {
+  background: #0f172a; border: 1px solid #334155;
+  border-radius: 8px; padding: 12px; margin-bottom: 10px;
+}
+.history-header { color: #38bdf8; font-size: 0.95rem; margin-bottom: 6px; }
+.history-meta { font-size: 0.8rem; color: #94a3b8; margin-bottom: 10px; }
+.history-actions { display: flex; gap: 8px; }
+.history-actions button { margin-top: 0; width: auto; flex: 1; }
