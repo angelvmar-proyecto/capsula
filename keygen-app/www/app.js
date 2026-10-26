@@ -1,7 +1,7 @@
 import { SignJWT, importPKCS8 } from './vendor/jose.js';
 
 const KEY_STORAGE = 'keygen_private_key_pem';
-const HISTORY_STORAGE = 'keygen_history';
+const DB_STORAGE = 'keygen_licenses_db';
 const ISSUER = 'angelvmar-license-issuer';
 
 let privateKey = null;
@@ -12,7 +12,7 @@ async function loadKey(pem) {
     privateKey = await importPKCS8(pem, 'RS256');
     return true;
   } catch (e) {
-    console.error('Error importPKCS8:', e);
+    alert('Error: La clave no es válida.');
     return false;
   }
 }
@@ -20,154 +20,138 @@ async function loadKey(pem) {
 function showApp() {
   $('key-section').style.display = 'none';
   $('gen-section').style.display = 'block';
-  $('history-section').style.display = 'block';
-  renderHistory();
+  $('db-section').style.display = 'block';
+  renderDB();
 }
 
-// --- HISTORIAL ---
-function getHistory() {
-  return JSON.parse(localStorage.getItem(HISTORY_STORAGE) || '[]');
-}
+// --- BASE DE DATOS (LocalStorage) ---
+function getDB() { return JSON.parse(localStorage.getItem(DB_STORAGE) || '[]'); }
+function saveDB(data) { localStorage.setItem(DB_STORAGE, JSON.stringify(data)); }
 
-function saveToHistory(item) {
-  const history = getHistory();
-  history.unshift(item); // Agrega al inicio
-  localStorage.setItem(HISTORY_STORAGE, JSON.stringify(history));
-  renderHistory();
-}
-
-function renderHistory() {
-  const history = getHistory();
-  const list = $('history-list');
+function renderDB() {
+  const data = getDB();
+  const query = $('search-input').value.toLowerCase();
   
-  if (history.length === 0) {
-    list.innerHTML = '<p class="hint">No hay licencias generadas aún.</p>';
+  // Actualizar estadísticas
+  $('stat-total').textContent = data.length;
+  $('stat-users').textContent = new Set(data.map(d => d.user)).size;
+  $('stat-apps').textContent = new Set(data.map(d => d.app)).size;
+
+  // Filtrar
+  const filtered = data.filter(item => 
+    item.user.toLowerCase().includes(query) || 
+    item.app.toLowerCase().includes(query)
+  ).reverse();
+
+  const container = $('list-container');
+  if (filtered.length === 0) {
+    container.innerHTML = '<p class="hint" style="text-align:center;">No se encontraron licencias.</p>';
     return;
   }
 
-  list.innerHTML = history.map((item, index) => `
-    <div class="history-item">
-      <div class="history-header">
-        <strong>${item.app}</strong> - ${item.user}
+  const now = Date.now();
+  container.innerHTML = filtered.map((item, index) => {
+    const isExpired = item.expiresAt < now;
+    const expDate = new Date(item.expiresAt).toLocaleDateString();
+    const statusClass = isExpired ? 'expired' : 'active';
+    const statusText = isExpired ? 'Expirada' : 'Activa';
+
+    return `
+      <div class="license-card ${statusClass}">
+        <div class="lc-header">
+          <strong>${item.user}</strong>
+          <span class="badge ${statusClass}">${statusText}</span>
+        </div>
+        <div class="lc-body">
+          <p>📱 <b>App:</b> ${item.app}</p>
+          <p>🏷️ <b>Funciones:</b> ${item.features.length ? item.features.join(', ') : 'Ninguna'}</p>
+          <p>📅 <b>Vence:</b> ${expDate}</p>
+        </div>
+        <div class="lc-actions">
+          <button onclick="copyJWT('${item.jwt}')" class="secondary" style="padding: 8px; font-size: 0.8rem;">📋 Copiar JWT</button>
+          <button onclick="deleteLicense('${item.jwt}')" class="danger" style="padding: 8px; font-size: 0.8rem;">❌ Eliminar</button>
+        </div>
       </div>
-      <div class="history-meta">
-        ${item.features.length ? '🏷️ ' + item.features.join(', ') : 'Sin funciones extra'} <br>
-        📅 ${new Date(item.date).toLocaleDateString()}
-      </div>
-      <div class="history-actions">
-        <button onclick="copyHistory(${index})" class="secondary" style="padding: 6px; font-size: 0.8rem;">📋 Copiar</button>
-        <button onclick="deleteHistory(${index})" class="danger" style="padding: 6px; font-size: 0.8rem;">❌ Borrar</button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
-window.copyHistory = async (index) => {
-  const history = getHistory();
-  try {
-    await navigator.clipboard.writeText(history[index].jwt);
-    alert('Licencia copiada al portapapeles');
-  } catch {
-    alert('No se pudo copiar');
-  }
+window.copyJWT = async (jwt) => {
+  try { await navigator.clipboard.writeText(jwt); alert('✅ Licencia copiada'); } catch { alert('❌ Error al copiar'); }
 };
 
-window.deleteHistory = (index) => {
-  if(!confirm('¿Borrar esta licencia del historial?')) return;
-  const history = getHistory();
-  history.splice(index, 1);
-  localStorage.setItem(HISTORY_STORAGE, JSON.stringify(history));
-  renderHistory();
+window.deleteLicense = (jwt) => {
+  if (!confirm('¿Eliminar esta licencia permanentemente?')) return;
+  const data = getDB().filter(item => item.jwt !== jwt);
+  saveDB(data);
+  renderDB();
 };
 
-// --- FIN HISTORIAL ---
-
-async function init() {
-  const saved = localStorage.getItem(KEY_STORAGE);
-  if (saved && await loadKey(saved)) showApp();
-}
+// --- EVENTOS ---
+$('search-input').addEventListener('input', renderDB);
 
 $('save-key-btn').onclick = async () => {
   const pem = $('key-input').value.trim();
-  if (!pem.includes('BEGIN PRIVATE KEY')) {
-    alert('Formato inválido. Debe ser PKCS#8 (-----BEGIN PRIVATE KEY-----).');
-    return;
-  }
+  if (!pem.includes('BEGIN PRIVATE KEY')) { alert('Formato inválido (PKCS#8).'); return; }
   if (await loadKey(pem)) {
     localStorage.setItem(KEY_STORAGE, pem);
     showApp();
-  } else {
-    alert('Clave inválida. Revisa el formato.');
   }
 };
 
 $('clear-key-btn').onclick = () => {
-  if (!confirm('¿Olvidar la clave privada? (El historial se mantendrá)')) return;
+  if (!confirm('¿Olvidar la clave privada?')) return;
   localStorage.removeItem(KEY_STORAGE);
   privateKey = null;
   $('key-input').value = '';
   $('key-section').style.display = 'block';
   $('gen-section').style.display = 'none';
-  $('history-section').style.display = 'none';
+  $('db-section').style.display = 'none';
 };
 
-$('clear-history-btn').onclick = () => {
-  if (!confirm('¿Borrar TODO el historial de licencias? Esta acción no se puede deshacer.')) return;
-  localStorage.removeItem(HISTORY_STORAGE);
-  renderHistory();
+$('clear-db-btn').onclick = () => {
+  if (!confirm('¿Borrar TODO el registro de licencias?')) return;
+  localStorage.removeItem(DB_STORAGE);
+  renderDB();
 };
 
 $('license-form').onsubmit = async (e) => {
   e.preventDefault();
   if (!privateKey) return;
 
-  const appName = $('app-name').value.trim();
-  const userId = $('user-id').value.trim();
+  const app = $('app-name').value.trim();
+  const user = $('user-id').value.trim();
   const features = $('features').value.split(',').map(f => f.trim()).filter(Boolean);
   const days = Math.max(1, parseInt($('days').value, 10) || 365);
+  const now = Math.floor(Date.now() / 1000);
+  const expiresAt = (now + days * 86400) * 1000; // Guardamos en milisegundos para JS
 
   try {
-    const now = Math.floor(Date.now() / 1000);
-    // Firmar el JWT incluyendo el nombre de la app
-    const jwt = await new SignJWT({ app: appName, features })
+    const jwt = await new SignJWT({ app, features })
       .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
-      .setSubject(userId)
+      .setSubject(user)
       .setIssuer(ISSUER)
       .setIssuedAt(now)
       .setExpirationTime(now + days * 86400)
       .sign(privateKey);
 
-    // Mostrar resultado actual
-    $('result').value = jwt;
-    $('result-container').style.display = 'block';
+    // Guardar en "Base de Datos"
+    const db = getDB();
+    db.push({ app, user, features, expiresAt, date: new Date().toISOString(), jwt });
+    saveDB(db);
 
-    // Guardar en historial
-    saveToHistory({
-      app: appName,
-      user: userId,
-      features: features,
-      date: new Date().toISOString(),
-      jwt: jwt
-    });
-
-    // Limpiar formulario (excepto días)
+    // Limpiar formulario y actualizar UI
     $('user-id').value = '';
     $('features').value = '';
-    
+    renderDB();
+    alert('✅ Licencia generada y guardada');
   } catch (err) {
-    console.error(err);
     alert('Error al firmar: ' + err.message);
   }
 };
 
-$('copy-btn').onclick = async () => {
-  try {
-    await navigator.clipboard.writeText($('result').value);
-    $('copy-btn').textContent = '✅ Copiado';
-    setTimeout(() => $('copy-btn').textContent = '📋 Copiar licencia', 1800);
-  } catch {
-    alert('Selecciona el texto y copia manualmente.');
-  }
-};
-
+async function init() {
+  const saved = localStorage.getItem(KEY_STORAGE);
+  if (saved && await loadKey(saved)) showApp();
+}
 init();
