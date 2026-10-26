@@ -1,0 +1,47 @@
+name: Build Keygen APK
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'keygen-app/**'
+      - '.github/workflows/build-keygen.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install npm deps
+        working-directory: keygen-app
+        run: npm install
+
+      - name: Capacitor sync
+        working-directory: keygen-app
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: keygen-app/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: keygen-debug-apk
+          path: keygen-app/android/app/build/outputs/apk/debug/app-debug.apk
