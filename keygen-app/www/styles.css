@@ -38,11 +38,8 @@ button:active { opacity: 0.7; }
 .stat-box { background: #0f172a; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #94a3b8; }
 .stat-box span { font-size: 1.4rem; font-weight: bold; color: #38bdf8; }
 
-/* Tarjetas de Licencia */
-.license-card {
-  background: #0f172a; border: 1px solid #334155;
-  border-radius: 8px; padding: 12px; margin-bottom: 10px;
-}
+/* Tarjetas */
+.license-card { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
 .license-card.expired { border-color: #7f1d1d; opacity: 0.8; }
 .license-card.active { border-color: #166534; }
 .lc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #1e293b; padding-bottom: 6px; }
@@ -51,5 +48,6 @@ button:active { opacity: 0.7; }
 .badge.active { background: #166534; color: #bbf7d0; }
 .badge.expired { background: #7f1d1d; color: #fecaca; }
 .lc-body p { font-size: 0.85rem; color: #cbd5e1; margin: 4px 0; }
-.lc-actions { display: flex; gap: 8px; margin-top: 10px; }
-.lc-actions button { margin: 0; }
+.lc-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.lc-actions button { margin: 0; flex: 1 1 40%; }
+#qr-modal img { max-width: 100%; height: auto; }

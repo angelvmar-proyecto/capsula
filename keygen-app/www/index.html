@@ -3,67 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Keygen Manager</title>
+  <title>Keygen Manager Pro</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <h1>🔐 Keygen Manager</h1>
-    <p class="subtitle">Generador y Control de Licencias</p>
-  </header>
+  <!-- Pantalla de Bloqueo (PIN) -->
+  <div id="lock-screen" class="card" style="display:none; margin-top: 50px;">
+    <h2>🔒 App Bloqueada</h2>
+    <p class="hint">Ingresa tu PIN de seguridad.</p>
+    <input type="password" id="pin-input" inputmode="numeric" maxlength="4" placeholder="****" style="text-align:center; font-size:2rem; letter-spacing: 10px;">
+    <button id="unlock-btn" class="primary">Desbloquear</button>
+  </div>
 
-  <main>
-    <!-- Sección: cargar clave -->
-    <section id="key-section" class="card">
-      <h2>1. Cargar clave privada</h2>
-      <p class="hint">Pega el contenido de <code>private-pkcs8.pem</code>.</p>
-      <textarea id="key-input" rows="3" placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"></textarea>
-      <button id="save-key-btn" class="primary">💾 Guardar clave</button>
-    </section>
+  <div id="main-app" style="display:none;">
+    <header>
+      <h1>🔐 Keygen Pro</h1>
+      <p class="subtitle">CRM de Licencias</p>
+    </header>
 
-    <!-- Sección: generar licencia -->
-    <section id="gen-section" class="card" style="display:none;">
-      <h2>2. Nueva Licencia</h2>
-      <form id="license-form">
-        <div style="display:flex; gap:10px;">
-          <label style="flex:1;">Aplicación
-            <input id="app-name" type="text" required placeholder="ej: TransportLog" />
+    <main>
+      <!-- Sección: cargar clave -->
+      <section id="key-section" class="card">
+        <h2>1. Cargar clave privada</h2>
+        <textarea id="key-input" rows="3" placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"></textarea>
+        <button id="save-key-btn" class="primary">💾 Guardar clave</button>
+      </section>
+
+      <!-- Sección: generar licencia -->
+      <section id="gen-section" class="card" style="display:none;">
+        <h2>2. Nueva Licencia</h2>
+        <div style="display:flex; gap:10px; margin-bottom: 8px;">
+          <button id="trial-btn" class="secondary" style="padding:8px; font-size:0.8rem;">⚡ Prueba 7 días</button>
+          <button id="share-trial-btn" class="secondary" style="padding:8px; font-size:0.8rem; display:none;">📤 Compartir Prueba</button>
+        </div>
+        
+        <form id="license-form">
+          <div style="display:flex; gap:10px;">
+            <label style="flex:1;">Aplicación
+              <input id="app-name" type="text" required placeholder="ej: TransportLog" />
+            </label>
+            <label style="flex:1;">Usuario
+              <input id="user-id" type="text" required placeholder="ej: Juan Perez" />
+            </label>
+          </div>
+          <label>Notas / Contacto
+            <input id="notes" type="text" placeholder="ej: WhatsApp 55-1234-5678" />
           </label>
-          <label style="flex:1;">Usuario
-            <input id="user-id" type="text" required placeholder="ej: Juan Perez" />
+          <label>Funciones (separadas por coma)
+            <input id="features" type="text" placeholder="pro, export" />
+          </label>
+          <label>Días de validez
+            <input id="days" type="number" value="365" min="1" />
+          </label>
+          <button type="submit" class="primary">🔑 Generar y Guardar</button>
+        </form>
+      </section>
+
+      <!-- Sección: Base de datos / Registro -->
+      <section id="db-section" class="card" style="display:none;">
+        <h2>📊 Registro de Licencias</h2>
+        
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <button id="export-btn" class="secondary" style="flex:1; padding:8px; font-size:0.8rem;">📥 Exportar JSON</button>
+          <label class="secondary" style="flex:1; text-align:center; padding:8px; font-size:0.8rem; cursor:pointer; margin:0;">
+            📤 Importar <input type="file" id="import-input" accept=".json" style="display:none;">
           </label>
         </div>
-        <label>Funciones (separadas por coma)
-          <input id="features" type="text" placeholder="pro, export" />
-        </label>
-        <label>Días de validez
-          <input id="days" type="number" value="365" min="1" />
-        </label>
-        <button type="submit" class="primary">🔑 Generar y Guardar</button>
-      </form>
-      <button id="clear-key-btn" class="danger" style="margin-top: 15px;">🗑️ Olvidar clave</button>
-    </section>
 
-    <!-- Sección: Base de datos / Registro -->
-    <section id="db-section" class="card" style="display:none;">
-      <h2>📊 Registro de Licencias</h2>
-      
-      <!-- Estadísticas -->
-      <div id="stats-container" class="stats-grid">
-        <div class="stat-box"><span id="stat-total">0</span><br>Licencias</div>
-        <div class="stat-box"><span id="stat-users">0</span><br>Usuarios</div>
-        <div class="stat-box"><span id="stat-apps">0</span><br>Apps</div>
-      </div>
+        <div id="stats-container" class="stats-grid">
+          <div class="stat-box"><span id="stat-total">0</span><br>Licencias</div>
+          <div class="stat-box"><span id="stat-users">0</span><br>Usuarios</div>
+          <div class="stat-box"><span id="stat-apps">0</span><br>Apps</div>
+        </div>
 
-      <!-- Buscador -->
-      <input type="text" id="search-input" placeholder="🔍 Buscar por usuario o app..." style="margin: 15px 0 10px 0;">
+        <input type="text" id="search-input" placeholder="🔍 Buscar por usuario, app o nota..." style="margin: 10px 0;">
+        <div id="list-container"></div>
+        <button id="clear-db-btn" class="danger" style="margin-top: 15px;">🗑️ Borrar todo el registro</button>
+      </section>
+    </main>
+  </div>
 
-      <!-- Lista -->
-      <div id="list-container"></div>
-      <button id="clear-db-btn" class="danger" style="margin-top: 15px;">🗑️ Borrar todo el registro</button>
-    </section>
-  </main>
+  <!-- Modal QR -->
+  <div id="qr-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:100; align-items:center; justify-content:center; flex-direction:column;">
+    <div style="background:white; padding:20px; border-radius:12px; text-align:center;">
+      <div id="qr-canvas-container"></div>
+      <button id="close-qr" class="danger" style="margin-top:10px; color:black; border-color:black;">Cerrar</button>
+    </div>
+  </div>
 
+  <script src="vendor/qrcode.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>
