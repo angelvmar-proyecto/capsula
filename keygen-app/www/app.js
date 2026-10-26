@@ -26,7 +26,6 @@ function showApp() {
 function checkPin() {
   const savedPin = localStorage.getItem(PIN_STORAGE);
   if (!savedPin) {
-    // Si no hay PIN, lo pedimos crear (solo la primera vez)
     const newPin = prompt('🔒 Crea un PIN de 4 dígitos para proteger tus llaves:');
     if (newPin && newPin.length === 4) localStorage.setItem(PIN_STORAGE, newPin);
   }
@@ -77,11 +76,13 @@ function renderDB() {
     const expDate = new Date(item.expiresAt).toLocaleDateString();
     const statusClass = isExpired ? 'expired' : 'active';
     const statusText = isExpired ? 'Expirada' : 'Activa';
+    const isTrial = item.features.includes('trial');
+    const trialBadge = isTrial ? '<span class="badge" style="background:#b45309; color:#fef3c7; margin-left:5px;">TRIAL</span>' : '';
 
     return `
       <div class="license-card ${statusClass}">
         <div class="lc-header">
-          <strong>${item.user}</strong>
+          <strong>${item.user} ${trialBadge}</strong>
           <span class="badge ${statusClass}">${statusText}</span>
         </div>
         <div class="lc-body">
@@ -110,7 +111,7 @@ window.shareJWT = async (jwt, appName) => {
   if (navigator.share) {
     try { await navigator.share({ title: 'Licencia', text: text }); } catch (e) { console.log(e); }
   } else {
-    alert('Compartir no soportado en este dispositivo. Usa Copiar Texto.');
+    alert('Compartir no soportado. Usa Copiar Texto.');
   }
 };
 
@@ -118,7 +119,7 @@ window.showQR = (jwt) => {
   const qr = qrcode(0, 'L');
   qr.addData(jwt);
   qr.make();
-  $('qr-canvas-container').innerHTML = qr.createImgTag(5); // Tamaño del QR
+  $('qr-canvas-container').innerHTML = qr.createImgTag(5);
   $('qr-modal').style.display = 'flex';
 };
 
@@ -158,11 +159,14 @@ $('import-input').onchange = (e) => {
 $('search-input').addEventListener('input', renderDB);
 $('close-qr').onclick = () => $('qr-modal').style.display = 'none';
 
+// Lógica del Trial Mejorada
 $('trial-btn').onclick = () => {
+  const days = $('trial-type').value;
   $('app-name').value = 'App de Prueba';
-  $('user-id').value = 'Trial_' + Math.floor(Math.random() * 1000);
-  $('features').value = 'pro';
-  $('days').value = '7';
+  $('user-id').value = 'Trial_' + Math.floor(Math.random() * 10000);
+  $('notes').value = 'Prueba automática';
+  $('features').value = 'trial, pro';
+  $('days').value = days;
 };
 
 $('save-key-btn').onclick = async () => {

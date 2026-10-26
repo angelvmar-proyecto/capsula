@@ -32,11 +32,18 @@
       <!-- Sección: generar licencia -->
       <section id="gen-section" class="card" style="display:none;">
         <h2>2. Nueva Licencia</h2>
-        <div style="display:flex; gap:10px; margin-bottom: 8px;">
-          <button id="trial-btn" class="secondary" style="padding:8px; font-size:0.8rem;">⚡ Prueba 7 días</button>
-          <button id="share-trial-btn" class="secondary" style="padding:8px; font-size:0.8rem; display:none;">📤 Compartir Prueba</button>
-        </div>
         
+        <!-- Selector de Tipo de Trial -->
+        <div style="display:flex; gap:10px; margin-bottom: 12px; background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155;">
+          <select id="trial-type" style="flex: 2; margin-top:0; border:none; background:transparent; color:#38bdf8; font-weight:bold;">
+            <option value="3">Trial 3 días</option>
+            <option value="7" selected>Trial 7 días</option>
+            <option value="14">Trial 14 días</option>
+            <option value="30">Trial 30 días</option>
+          </select>
+          <button type="button" id="trial-btn" class="secondary" style="flex: 1; padding:6px; font-size:0.8rem; margin-top:0;">⚡ Aplicar</button>
+        </div>
+
         <form id="license-form">
           <div style="display:flex; gap:10px;">
             <label style="flex:1;">Aplicación
