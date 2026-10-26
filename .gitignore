@@ -1,0 +1,20 @@
+# Claves privadas - NUNCA subir
+claves/
+*.pem
+*.keystore
+*.jks
+
+# Node
+node_modules/
+npm-debug.log
+package-lock.json
+
+# Android/Capacitor
+keygen-app/android/
+keygen-app/.gradle/
+*.apk
+*.aab
+
+# Sistema
+.DS_Store
+Thumbs.db
