@@ -1,0 +1,38 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, system-ui, sans-serif;
+  background: #0f172a; color: #e2e8f0;
+  padding: 16px; padding-top: env(safe-area-inset-top, 16px);
+  min-height: 100vh;
+}
+header { text-align: center; margin-bottom: 24px; }
+h1 { font-size: 1.8rem; color: #38bdf8; }
+.subtitle { color: #94a3b8; font-size: 0.9rem; margin-top: 4px; }
+main { max-width: 500px; margin: 0 auto; }
+.card {
+  background: #1e293b; border-radius: 12px;
+  padding: 20px; margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+h2 { font-size: 1.1rem; margin-bottom: 12px; color: #f1f5f9; }
+.hint { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; }
+.hint code { background: #0f172a; padding: 2px 6px; border-radius: 4px; }
+label { display: block; margin-bottom: 12px; font-size: 0.9rem; color: #cbd5e1; }
+input, textarea {
+  width: 100%; padding: 10px; margin-top: 6px;
+  background: #0f172a; border: 1px solid #334155;
+  border-radius: 8px; color: #e2e8f0; font-size: 0.95rem;
+  font-family: inherit;
+}
+textarea { font-family: ui-monospace, monospace; font-size: 0.8rem; resize: vertical; }
+button {
+  width: 100%; padding: 12px; border: none; border-radius: 8px;
+  font-size: 1rem; font-weight: 600; cursor: pointer;
+  margin-top: 8px; transition: opacity 0.2s;
+}
+button:active { opacity: 0.7; }
+.primary { background: #38bdf8; color: #0f172a; }
+.secondary { background: #334155; color: #e2e8f0; }
+.danger { background: transparent; color: #f87171; border: 1px solid #f87171; }
+.status { margin-top: 10px; font-size: 0.9rem; text-align: center; }
+#result { margin-top: 12px; word-break: break-all; }

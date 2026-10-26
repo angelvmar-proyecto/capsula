@@ -1,4 +1,4 @@
-# Claves privadas - NUNCA subir
+# Claves - NUNCA subir
 claves/
 *.pem
 *.keystore
@@ -9,9 +9,11 @@ node_modules/
 npm-debug.log
 package-lock.json
 
-# Android/Capacitor
-keygen-app/android/
-keygen-app/.gradle/
+# Android - solo outputs
+keygen-app/android/.gradle/
+keygen-app/android/build/
+keygen-app/android/app/build/
+keygen-app/android/local.properties
 *.apk
 *.aab
 

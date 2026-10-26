@@ -1,0 +1,11 @@
+{
+  "appId": "com.angelvmar.keygen",
+  "appName": "Keygen",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

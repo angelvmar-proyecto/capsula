@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Keygen</string>
+    <string name="title_activity_main">Keygen</string>
+    <string name="package_name">com.angelvmar.keygen</string>
+    <string name="custom_url_scheme">com.angelvmar.keygen</string>
+</resources>
