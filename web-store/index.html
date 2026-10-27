@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Descarga de Apps</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #fff; padding: 20px; text-align: center; }
+    .card { background: #1e293b; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; text-align: left; }
+    input, select, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box;}
+    input, select { background: #0f172a; color: #fff; border: 1px solid #334155; }
+    button { background: #38bdf8; color: #000; font-weight: bold; cursor: pointer; }
+    .error { color: #f87171; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>📱 Descarga Nuestras Apps</h2>
+    <p style="font-size:0.9rem; color:#94a3b8;">Completa tus datos para descargar.</p>
+    
+    <form id="downloadForm">
+      <label>Nombre completo:</label>
+      <input type="text" id="nombre" required>
+      
+      <label>Correo electrónico:</label>
+      <input type="email" id="email" required>
+
+      <label>¿A qué sector te dedicas?</label>
+      <select id="sector" required>
+        <option value="">Selecciona una opción...</option>
+        <option value="Timeshare">Timeshare / Turismo</option>
+        <option value="Logistica">Logística / Transporte</option>
+        <option value="Otro">Otro sector</option>
+      </select>
+
+      <button type="submit" id="btnSubmit">Descargar App (APK)</button>
+      <p id="msg" class="error"></p>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('downloadForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmit');
+      const msg = document.getElementById('msg');
+      
+      btn.textContent = 'Procesando...';
+      msg.textContent = '';
+
+      const data = {
+        nombre: document.getElementById('nombre').value,
+        email: document.getElementById('email').value,
+        sector: document.getElementById('sector').value,
+        app: 'TransportLog' // Nombre de la app a descargar
+      };
+
+      try {
+        const res = await fetch('/api/descargar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (!res.ok) throw new Error('Error al procesar la descarga');
+        
+        // Recibimos el archivo como un Blob y lo descargamos
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'TransportLog.apk';
+        a.click();
+        
+        btn.textContent = '¡Descarga Iniciada!';
+      } catch (err) {
+        msg.textContent = 'Hubo un error. Intenta de nuevo.';
+        btn.textContent = 'Descargar App (APK)';
+      }
+    };
+  </script>
+</body>
+</html>
